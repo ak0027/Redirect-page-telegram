@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKLINKSZ</title>
+
+<style>
+
+body{
+display:flex;
+align-items:center;
+justify-content:center;
+min-height:100vh;
+margin:0;
+font-family:Arial;
+background:#000;
+}
+
+.modal{
+background:rgba(0,0,0,0.92);
+padding:40px;
+border-radius:10px;
+box-shadow:0 0 15px rgba(0,255,80,0.6);
+text-align:center;
+max-width:420px;
+}
+
+h1{
+font-size:3rem;
+color:#0FFF50;
+text-shadow:0 0 15px #0FFF50;
+margin-bottom:25px;
+}
+
+button{
+display:block;
+width:100%;
+margin:10px 0;
+padding:14px;
+background:#ff2400;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:17px;
+}
+
+button:hover{
+background:#ff5733;
+}
+
+button:disabled{
+opacity:0.5;
+cursor:not-allowed;
+}
+
+.message{
+display:none;
+margin-top:20px;
+padding:12px;
+font-size:17px;
+color:#FFF;
+background:rgba(255,255,255,0.08);
+border-radius:6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="modal">
+
+<h1>AKLINKSZ</h1>
+
+<div id="buttons">
+
+<button onclick="watchVideo('shorts')">
+Watch Shorts - 30 Sec
+</button>
+
+<button onclick="watchVideo('video')">
+Watch Normal Video - 30 Sec
+</button>
+
+</div>
+
+<div id="message" class="message"></div>
+
+</div>
+
+<script>
+
+let shortsList=[]
+let videoList=[]
+
+let timer
+let secondsLeft=30
+let started=false
+
+async function loadVideos(){
+
+let shorts=await fetch("shorts.json")
+let shortsData=await shorts.json()
+shortsList=shortsData.videos
+
+let videos=await fetch("videos.json")
+let videoData=await videos.json()
+videoList=videoData.videos
+
+}
+
+function disableButtons(){
+
+const buttons=document.querySelectorAll("button")
+
+buttons.forEach(btn=>{
+btn.disabled=true
+})
+
+}
+
+function watchVideo(type){
+
+if(started) return
+started=true
+
+disableButtons()
+
+let videoID
+
+if(type==="shorts"){
+videoID=shortsList[Math.floor(Math.random()*shortsList.length)]
+}else{
+videoID=videoList[Math.floor(Math.random()*videoList.length)]
+}
+
+const urlParams=new URLSearchParams(window.location.search)
+const start=urlParams.get("start")
+
+let message=document.getElementById("message")
+
+message.style.display="block"
+message.innerText="Please watch 30 seconds... after come back"
+
+// open youtube instantly
+window.open(`https://youtube.com/watch?v=${videoID}`,"_blank")
+
+startTimer(start)
+
+}
+
+function startTimer(start){
+
+timer=setInterval(()=>{
+
+secondsLeft--
+
+if(secondsLeft<=0){
+
+clearInterval(timer)
+
+document.getElementById("message").innerText=
+"The Movie or Series File Has Been Successfully Sent 📤"
+
+window.location.href=
+`https://t.me/Tamilrockers27_bot?start=${start}`
+
+}
+
+},1000)
+
+}
+
+document.addEventListener("visibilitychange",function(){
+
+if(!started) return
+
+if(document.hidden){
+clearInterval(timer)
+}else{
+startTimer(new URLSearchParams(window.location.search).get("start"))
+}
+
+})
+
+window.onbeforeunload=function(){
+if(started && secondsLeft>0){
+return "Please complete the 30 second watch process."
+}
+}
+
+document.addEventListener("contextmenu",function(e){
+e.preventDefault()
+})
+
+document.addEventListener("keydown",function(e){
+
+if(e.key==="F12"){
+e.preventDefault()
+}
+
+if(e.ctrlKey && e.shiftKey && e.key==="I"){
+e.preventDefault()
+}
+
+if(e.ctrlKey && e.key==="U"){
+e.preventDefault()
+}
+
+})
+
+loadVideos()
+
+</script>
+
+</body>
+</html>
